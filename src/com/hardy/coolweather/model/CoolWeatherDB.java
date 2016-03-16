@@ -79,13 +79,14 @@ public class CoolWeatherDB {
 			// contentValues.put("id", city.getId());
 			contentValues.put("city_name", city.getCityName());
 			contentValues.put("city_code", city.getCityCode());
+			contentValues.put("province_id", city.getProvinceId());
 			sqLiteDatabase.insert("City", null, contentValues);
 		}
 	}
 	
-	public List<City> loadCities(){
+	public List<City> loadCities(int provinceId){
 		List<City> allCities = new ArrayList<City>();
-		Cursor cursor = sqLiteDatabase.query("City", null, null, null, null, null, null);
+		Cursor cursor = sqLiteDatabase.query("City", null, "province_id=?", new String[]{String.valueOf(provinceId)}, null, null, null);
 		//如果cursor为空，则moveToFirst()会返回空
 		if(cursor.moveToFirst()){
 			do{
@@ -112,13 +113,14 @@ public class CoolWeatherDB {
 			// contentValues.put("id", province.getId());
 			contentValues.put("county_name", county.getCountyName());
 			contentValues.put("county_code", county.getCountyCode());
+			contentValues.put("city_id", county.getCityId());
 			sqLiteDatabase.insert("County", null, contentValues);
 		}
 	}
 	
-	public List<County> loadCounties(){
+	public List<County> loadCounties(int cityId){
 		List<County> allCounties = new ArrayList<County>();
-		Cursor cursor = sqLiteDatabase.query("County", null, null, null, null, null, null);
+		Cursor cursor = sqLiteDatabase.query("County", null, "city_id=?", new String[]{String.valueOf(cityId)}, null, null, null);
 		//如果cursor为空，则moveToFirst()会返回空
 		if(cursor.moveToFirst()){
 			do{

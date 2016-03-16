@@ -15,7 +15,7 @@ public class CoolWeatherOpenHelper extends SQLiteOpenHelper {
 			"province_code text)";
 	//创建城市表的语句
 	private static final String CREATE_CITY = "create table City(" +
-			"id int primary key autoincrement," +
+			"id integer primary key autoincrement," +
 			"city_name text," +
 			"city_code text," +
 			"province_id integer)";
