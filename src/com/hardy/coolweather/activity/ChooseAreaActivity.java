@@ -5,7 +5,10 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -47,6 +50,13 @@ public class ChooseAreaActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		if(preferences.getBoolean("city_selected", false)){
+			Intent intent = new Intent(this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+		}
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area_activity_layout);
 		areaName = (TextView) findViewById(R.id.areaName);
@@ -60,16 +70,23 @@ public class ChooseAreaActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				//如果当前列表是显示省份的，点击后就去显示城市
-				if(currentLevel == LEVEL_PROVINCE){
+				// 如果当前列表是显示省份的，点击后就去显示城市
+				if (currentLevel == LEVEL_PROVINCE) {
 					selectedProvince = receiveProvinces.get(position);
 					queryCities();
-				}else if(currentLevel == LEVEL_CITY){
-					//如果当前列表是显示城市的，点击后就去显示县级市
+				} else if (currentLevel == LEVEL_CITY) {
+					// 如果当前列表是显示城市的，点击后就去显示县级市
 					selectedCity = receiveCities.get(position);
 					queryCounties();
+				} else if (currentLevel == LEVEL_COUNTY) {
+					Intent intent = new Intent(ChooseAreaActivity.this,
+							WeatherActivity.class);
+					intent.putExtra("county_code", receiveCouties.get(position)
+							.getCountyCode());
+					startActivity(intent);
+					finish();
 				}
-				
+
 			}
 		});
 		// 第一次打开去查询省份信息
@@ -206,7 +223,7 @@ public class ChooseAreaActivity extends Activity {
 
 						@Override
 						public void run() {
-							//关闭进度对话框
+							// 关闭进度对话框
 							closeProgressDialog();
 							if ("province".equals(type)) {
 								// 重新去数据库中查询省份数据
@@ -227,10 +244,11 @@ public class ChooseAreaActivity extends Activity {
 
 			@Override
 			public void onError(Exception e) {
-				//关闭进度对话框
+				// 关闭进度对话框
 				closeProgressDialog();
-				//提示错误信息
-				Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_LONG).show();
+				// 提示错误信息
+				Toast.makeText(ChooseAreaActivity.this, "加载失败",
+						Toast.LENGTH_LONG).show();
 			}
 		});
 
@@ -256,20 +274,20 @@ public class ChooseAreaActivity extends Activity {
 			progressDialog.dismiss();
 		}
 	}
-	
+
 	/*
 	 * 重写Activity的onBackPressed()方法
 	 * 捕获点击返回键事件，根据currentLevel来判断是返回省份列表、城市列表还是直接退出
 	 */
 	@Override
 	public void onBackPressed() {
-		//屏蔽父类方法，要不然会退出此Avtivity
-		//super.onBackPressed();
-		if(currentLevel == LEVEL_COUNTY){
+		// 屏蔽父类方法，要不然会退出此Avtivity
+		// super.onBackPressed();
+		if (currentLevel == LEVEL_COUNTY) {
 			queryCities();
-		}else if(currentLevel == LEVEL_CITY){
+		} else if (currentLevel == LEVEL_CITY) {
 			queryProvinces();
-		}else{
+		} else {
 			finish();
 		}
 	}
