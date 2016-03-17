@@ -1,38 +1,43 @@
 package com.hardy.coolweather.activity;
 
-import java.security.PublicKey;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.Window;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.hardy.coolweather.R;
 import com.hardy.coolweather.util.CallBackHttpUtil;
 import com.hardy.coolweather.util.HttpUtil;
 import com.hardy.coolweather.util.ParseUtility;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.view.View;
-import android.view.Window;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 /*
  * 显示天气信息类
  */
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements OnClickListener {
 	private TextView cityName;
 	private TextView publishTime;
 	private LinearLayout linearWeather;
 	private TextView currentDate;
 	private TextView weatherInfo;
 	private TextView temperature;
+	private ImageButton home;
+	private ImageButton flush;
+	private SharedPreferences preferences;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_activity);
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		cityName = (TextView) findViewById(R.id.cityName);
 		publishTime = (TextView) findViewById(R.id.publicTime);
 		linearWeather = (LinearLayout) findViewById(R.id.linearWeather);
@@ -49,6 +54,11 @@ public class WeatherActivity extends Activity {
 		} else {
 			showWeatherInfo();
 		}
+		home = (ImageButton) findViewById(R.id.home);
+		home.setOnClickListener(this);
+		flush = (ImageButton) findViewById(R.id.flush);
+		flush.setOnClickListener(this);
+
 	}
 
 	/*
@@ -80,7 +90,8 @@ public class WeatherActivity extends Activity {
 				if ("countyCode".equals(type)) {
 					if (!TextUtils.isEmpty(response)) {
 						String[] countyResponse = response.split("\\|");
-						if (countyResponse != null && countyResponse.length == 2) {
+						if (countyResponse != null
+								&& countyResponse.length == 2) {
 							String weatherCode = countyResponse[1];
 							queryWeatherInfo(weatherCode);
 						}
@@ -116,15 +127,38 @@ public class WeatherActivity extends Activity {
 	 * 在主线程显示天气信息
 	 */
 	private void showWeatherInfo() {
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(this);
 		cityName.setText(preferences.getString("city_name", ""));
-		publishTime.setText("今天"+preferences.getString("publish_time", "")+"发布");
+		publishTime.setText("今天" + preferences.getString("publish_time", "")
+				+ "发布");
 		currentDate.setText(preferences.getString("date", ""));
 		weatherInfo.setText(preferences.getString("weather", ""));
-		temperature.setText(preferences.getString("low_tem", "")+"~"+preferences.getString("high_tem", ""));
+		temperature.setText(preferences.getString("low_tem", "") + "~"
+				+ preferences.getString("high_tem", ""));
 		linearWeather.setVisibility(View.VISIBLE);
 		cityName.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.home:
+			Intent intent = new Intent(this, ChooseAreaActivity.class);
+			intent.putExtra("home_return", true);
+			startActivity(intent);
+			finish();
+			break;
+		case R.id.flush:
+			publishTime.setText("同步中...");
+			String weatherCode = preferences.getString("weather_code", "");
+			//养成随时判断是否为空的习惯
+			if (!TextUtils.isEmpty(weatherCode)) {
+				queryWeatherInfo(weatherCode);
+			}
+			break;
+		default:
+			break;
+
+		}
 	}
 
 }

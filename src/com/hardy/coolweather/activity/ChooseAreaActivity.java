@@ -52,7 +52,7 @@ public class ChooseAreaActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		if(preferences.getBoolean("city_selected", false)){
+		if(preferences.getBoolean("city_selected", false)&&!getIntent().getBooleanExtra("home_return", false)){
 			Intent intent = new Intent(this, WeatherActivity.class);
 			startActivity(intent);
 			finish();

@@ -93,12 +93,15 @@ public class ParseUtility {
 			JSONObject object1 = new JSONObject(response);
 			JSONObject object2 = object1.getJSONObject("weatherinfo");
 			String cityName = object2.getString("city");
+			//接收天气信息的代号是为了更新即时数据
+			String weatherCode = object2.getString("cityid");
 			String highTem = object2.getString("temp1");
 			String lowTem = object2.getString("temp2");
 			String weather = object2.getString("weather");
 			String publishTime = object2.getString("ptime");
-			saveWeatherInfo(context,cityName,highTem,lowTem,weather,publishTime);
-			
+			saveWeatherInfo(context, cityName, weatherCode, highTem, lowTem,
+					weather, publishTime);
+
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -109,18 +112,21 @@ public class ParseUtility {
 	 * 将天气信息保存到本地，为了下次打开软件自动更新上次退出时的城市的天气信息（现在还并不是最新的）
 	 */
 	public static void saveWeatherInfo(Context context, String cityName,
-			String highTem, String lowTem, String weather, String publishTime) {
+			String weatherCode, String highTem, String lowTem, String weather,
+			String publishTime) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日");
 		SharedPreferences.Editor editor = PreferenceManager
 				.getDefaultSharedPreferences(context).edit();
 		editor.putBoolean("city_selected", true);
-		editor.putString("city_name",cityName);
+		editor.putString("city_name", cityName);
+		//保存天气信息的代号是为了更新即时数据
+		editor.putString("weather_code", weatherCode);
 		editor.putString("high_tem", highTem);
 		editor.putString("low_tem", lowTem);
 		editor.putString("weather", weather);
 		editor.putString("publish_time", publishTime);
 		editor.putString("date", sdf.format(new Date()));
-		//一定不要忘了commit()!!!!!!!!
+		// 一定不要忘了commit()!!!!!!!!
 		editor.commit();
 	}
 }
