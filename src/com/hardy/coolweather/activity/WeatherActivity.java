@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hardy.coolweather.R;
+import com.hardy.coolweather.service.AutoUpdateService;
 import com.hardy.coolweather.util.CallBackHttpUtil;
 import com.hardy.coolweather.util.HttpUtil;
 import com.hardy.coolweather.util.ParseUtility;
@@ -136,6 +137,8 @@ public class WeatherActivity extends Activity implements OnClickListener {
 				+ preferences.getString("high_tem", ""));
 		linearWeather.setVisibility(View.VISIBLE);
 		cityName.setVisibility(View.VISIBLE);
+		Intent intent = new Intent(this, AutoUpdateService.class);
+		startService(intent);
 	}
 
 	@Override
